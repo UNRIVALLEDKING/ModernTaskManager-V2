@@ -62,15 +62,17 @@ function App() {
 
   // Functions
   const getProjects = () => {
-    try {
-      fetch(API_URL + "/getProjects/" + token).then((res) => {
-        res.json().then((data) => {
-          // console.log("allProjects", data);
-          setAllProjects(data);
+    if (token !== null) {
+      try {
+        fetch(API_URL + "/getProjects/" + token).then((res) => {
+          res.json().then((data) => {
+            // console.log("allProjects", data);
+            setAllProjects(data);
+          });
         });
-      });
-    } catch (err) {
-      console.log("err", err);
+      } catch (err) {
+        console.log("err", err);
+      }
     }
   };
   const openModal = () => {
