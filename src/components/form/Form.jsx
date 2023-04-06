@@ -1,13 +1,16 @@
 import React, { useRef, useState } from "react";
 import "./form.css";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import { API_URL } from "../../constant/constant";
 
 export default function Form({
   addEffect,
   closeModal,
-  allProjects,
-  setAllProjects,
+  getProjects,
+  token,
   sound,
+  setGreeting,
+  setDashboard,
 }) {
   const projectRef = useRef();
   const descRef = useRef();
@@ -22,15 +25,43 @@ export default function Form({
         title: projectRef.current.value,
         desc: descRef.current.value,
         deadline: dateRef.current.value,
-        start: new Date().toDateString(),
+        token: token,
         progress: 0,
         status: "Active",
       };
       console.log(project);
-      const updatedProjects = [...allProjects, project];
-      setAllProjects(updatedProjects);
-      localStorage.setItem("projects", JSON.stringify(updatedProjects));
-      closeModal();
+      // const updatedProjects = [...allProjects, project];
+      // setAllProjects(updatedProjects);
+      // localStorage.setItem("projects", JSON.stringify(updatedProjects));
+      try {
+        fetch(API_URL + "/addProject", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(project),
+        }).then((res) => {
+          res.json().then((data) => {
+            console.log("res", res.status);
+            if (res.status === 201) {
+              toast("Project Added!");
+              closeModal();
+              console.log("resData", data);
+              getProjects();
+            } else {
+              toast(data.message);
+              setTimeout(() => {
+                localStorage.clear();
+                closeModal();
+                setGreeting(false);
+                setDashboard(true);
+              }, 3000);
+            }
+          });
+        });
+      } catch (err) {
+        toast(err.message);
+      }
     } else {
       toast("Fill Project Details to Continue");
     }
@@ -38,6 +69,7 @@ export default function Form({
 
   return (
     <>
+      <ToastContainer />
       <div id="myModal" className="modal" style={{ display: "block" }}>
         <div className="modal-content w-[80%] sm:w-[50%]">
           <form onSubmit={addProject}>

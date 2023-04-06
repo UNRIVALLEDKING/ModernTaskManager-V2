@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { API_URL } from "../../constant/constant";
+import { toast } from "react-toastify";
 
 export default function EditForm({
   item,
   projectId,
-  allProjects,
   setEditForm,
-  setAllProjects,
+  getProjects,
   completeEffect,
   addEffect,
   sound,
@@ -34,33 +35,65 @@ export default function EditForm({
       completeEffect.play();
     }
     e.preventDefault();
-    const newData = allProjects.map((project, id) => {
-      if (id === projectId) {
-        console.log("id", id, "project", project);
-        console.log(progress);
-        let progStatus = "none";
-        if (progress === "100") {
-          progStatus = "Completed";
-        } else {
-          progStatus = "Active";
-        }
-        console.log("progStatus", progStatus);
-        return {
-          ...project,
-          title: title,
-          deadline: date,
-          desc: desc,
-          status: progStatus,
-          progress: progress,
-        };
+    // const newData = allProjects.map((project, id) => {
+    //   if (id === projectId) {
+    //     console.log("id", id, "project", project);
+    //     console.log(progress);
+    //     let progStatus = "none";
+    //     if (progress === "100") {
+    //       progStatus = "Completed";
+    //     } else {
+    //       progStatus = "Active";
+    //     }
+    //     console.log("progStatus", progStatus);
+    //     return {
+    //       ...project,
+    //       title: title,
+    //       deadline: date,
+    //       desc: desc,
+    //       status: progStatus,
+    //       progress: progress,
+    //     };
+    //   } else {
+    //     return project;
+    //   }
+    // });
+    // setAllProjects(newData);
+    const newStatus = () => {
+      if (progress === 100) {
+        return "Completed";
       } else {
-        return project;
+        return "Active";
       }
-    });
-    setAllProjects(newData);
-    setTimeout(() => {
-      setEditForm(false);
-    }, 400);
+    };
+    const updatedData = {
+      title: title,
+      desc: desc,
+      deadline: date,
+      progress: progress,
+      status: newStatus(),
+    };
+    // console.log("id", projectId);
+    // console.log("upppp", updatedData);
+    fetch(API_URL + "/updateProject/" + projectId, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    }).then((res) =>
+      res.json().then((data) => {
+        if (res.status === 200) {
+          toast("Project Details Updated!");
+          getProjects();
+          setTimeout(() => {
+            setEditForm(false);
+          }, 400);
+        } else {
+          toast(data.message);
+        }
+      })
+    );
   };
   const closeModal = () => {
     if (sound) {
@@ -71,7 +104,7 @@ export default function EditForm({
     }, 300);
   };
 
-  console.log("All projects", allProjects);
+  // console.log("All projects", allProjects);
   return (
     <>
       <div id="myModal" className="modal" style={{ display: "block" }}>

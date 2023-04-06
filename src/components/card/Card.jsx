@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "./Card.css";
 import { EditIcon } from "../../assets/Icons/icons_index";
 import EditForm from "../form/EditForm";
+import { API_URL } from "../../constant/constant";
+import { toast } from "react-toastify";
 
 export default function Card({
   item,
@@ -11,6 +13,7 @@ export default function Card({
   completeEffect,
   addEffect,
   sound,
+  getProjects,
 }) {
   // States
   const [animate, setAnimate] = useState(false);
@@ -20,24 +23,58 @@ export default function Card({
   // Functions
 
   // Add Progress Function
-  const addProgress = (projectId) => {
+  const addProgress = (item) => {
     setAnimate(true);
     if (sound) {
       addEffect.play();
     }
-    setAllProjects(
-      allProjects.map((project, id) => {
-        if (projectId === id) {
-          if (project.progress < 90) {
-            return { ...project, progress: project.progress + 10 };
+    // setAllProjects(
+    //   allProjects.map((project, id) => {
+    //     if (projectId === id) {
+    //       if (project.progress < 90) {
+    //         return { ...project, progress: project.progress + 10 };
+    //       } else {
+    //         return { ...project, progress: 100, status: "Completed" };
+    //       }
+    //     } else {
+    //       return project;
+    //     }
+    //   })
+    // );
+    const newProgress = item.progress + 10;
+    const newStatus = () => {
+      if (newProgress === 100) {
+        return "Completed";
+      } else {
+        return "Active";
+      }
+    };
+    // console.log("news", newStatus());
+    // console.log("newp", newProgress);
+    try {
+      fetch(API_URL + "/updateProject/" + item._id, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ progress: newProgress, status: newStatus() }),
+      }).then((res) => {
+        res.json().then((data) => {
+          if (res.status === 200) {
+            toast(
+              newProgress === 100
+                ? "Congrats! This Task is Completed!"
+                : "Congrats! you are now closer to complete this task!"
+            );
+            getProjects();
           } else {
-            return { ...project, progress: 100, status: "Completed" };
+            toast(data.message);
           }
-        } else {
-          return project;
-        }
-      })
-    );
+        });
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
     setTimeout(() => {
       setAnimate(false);
     }, 1500);
@@ -49,35 +86,77 @@ export default function Card({
     if (sound) {
       completeEffect.play();
     }
-    setAllProjects(
-      allProjects.map((project, id) => {
-        if (projectId === id) {
-          return { ...project, progress: 100, status: "Completed" };
-        } else {
-          return project;
-        }
-      })
-    );
+    // setAllProjects(
+    //   allProjects.map((project, id) => {
+    //     if (projectId === id) {
+    //       return { ...project, progress: 100, status: "Completed" };
+    //     } else {
+    //       return project;
+    //     }
+    //   })
+    // );
+    const updatedData = {
+      progress: 100,
+      status: "Completed",
+    };
+    try {
+      fetch(API_URL + "/updateProject/" + item._id, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      }).then((res) => {
+        res.json().then((data) => {
+          if (res.status === 200) {
+            toast("Congrats! This Task is Completed!");
+            getProjects();
+          } else {
+            toast(data.message);
+          }
+        });
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+
     setTimeout(() => {
       setCompAnimate(false);
     }, 1500);
   };
 
   // Dispose Project Function
-  const dispose = (projectId) => {
+  const dispose = (item) => {
     setCompAnimate(true);
     if (sound) {
       completeEffect.play();
     }
-    const newProjectList = allProjects.filter((project, id) => {
-      return id !== projectId;
-    });
+    // const newProjectList = allProjects.filter((project, id) => {
+    //   return id !== projectId;
+    // });
+    // console.log(item);
+    try {
+      fetch(API_URL + "/deleteProject/" + item, {
+        method: "DELETE",
+      }).then((res) => {
+        res.json().then((data) => {
+          if (res.status === 200) {
+            toast("Task is Deleted");
+            getProjects();
+          } else {
+            toast(data.message);
+          }
+        });
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+
     setTimeout(() => {
-      setAllProjects(newProjectList);
+      // setAllProjects(newProjectList);
       setCompAnimate(false);
     }, 1500);
   };
-
   // Edit Project Funtion
   const editProject = () => {
     setTimeout(() => {
@@ -92,7 +171,8 @@ export default function Card({
           <>
             <EditForm
               item={item}
-              projectId={id}
+              projectId={item._id}
+              getProjects={getProjects}
               allProjects={allProjects}
               setEditForm={setEditForm}
               setAllProjects={setAllProjects}
@@ -106,7 +186,7 @@ export default function Card({
         )}
         <div className="rounded-2xl pending-card box">
           <button
-            onClick={() => editProject(id)}
+            onClick={() => editProject()}
             className="prog_btn absolute right-0 top-3 rounded-full px-[10px] z-[999] editBtn"
           >
             <EditIcon />
@@ -155,7 +235,9 @@ export default function Card({
           <div className="flex justify-end">
             <span className="progress_data">
               <span>Deadline : </span>
-              {item.deadline ? item.deadline : "Not Set"}
+              {item.deadline
+                ? new Date(item.deadline).toLocaleDateString()
+                : "Not Set"}
             </span>
           </div>
 
@@ -165,7 +247,7 @@ export default function Card({
                 <div className="btn_container text-center mr-1 w-[48%]">
                   <div
                     className="prog_btn whitespace-nowrap"
-                    onClick={() => addProgress(id)}
+                    onClick={() => addProgress(item)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -209,7 +291,7 @@ export default function Card({
                 <div className="btn_container text-center my-5 w-[50%]">
                   <div
                     className="prog_btn whitespace-nowrap"
-                    onClick={() => complete(id)}
+                    onClick={() => complete(item._id)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -257,7 +339,7 @@ export default function Card({
               <div className="btn_container text-center my-5 w-[50%]">
                 <div
                   className="prog_btn whitespace-nowrap"
-                  onClick={() => dispose(id)}
+                  onClick={() => dispose(item._id)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

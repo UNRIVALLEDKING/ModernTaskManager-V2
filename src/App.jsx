@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AddIcon, EditIcon, DeleteIcon } from "./assets/Icons/icons_index";
 import "./App.css";
 import Card from "./components/card/Card";
@@ -9,10 +9,23 @@ import NoDataCard from "./components/noDataCard/NoDataCard";
 import AddEffect from "./assets/Audio/Add_sound_effect.wav";
 import CompEffect from "./assets/Audio/Complete_sound_effect.wav";
 import Welcome from "./components/welcomeMessage/Welcome";
+import { API_URL } from "./constant/constant";
 
 function App() {
+  // console.log("api", API_URL);
+
   // States
+  const [token, setToken] = useState(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      return JSON.parse(token);
+    } else {
+      return null;
+    }
+  });
+
   const [editingName, setEditingName] = useState(false);
+  const [deleteAllModal, setDeleteAllModal] = useState(false);
   const [sound, setSound] = useState(() => {
     const effect = localStorage.getItem("sound");
     if (effect) {
@@ -21,54 +34,57 @@ function App() {
       return true;
     }
   });
-  const [greeting, setGreeting] = useState(false);
-  const [user, setUser] = useState(() => {
-    const userName = localStorage.getItem("user");
-    if (userName) {
-      setGreeting(true);
-      return JSON.parse(userName);
+  const [greeting, setGreeting] = useState(() => {
+    const token = localStorage.getItem("token");
+    if (token !== null) {
+      return true;
     } else {
-      return "Not Set";
+      return false;
     }
   });
+
+  const [user, setUser] = useState(() => {
+    const username = localStorage.getItem("username");
+    if (username !== null) {
+      return JSON.parse(username);
+    } else {
+      return null;
+    }
+  });
+
   const [form, setForm] = useState(false);
   const [dashboard, setDashboard] = useState(true);
-  const [allProjects, setAllProjects] = useState(() => {
-    const savedData = localStorage.getItem("projects");
-    if (savedData) {
-      return JSON.parse(savedData);
-    } else {
-      return [];
-    }
-  });
+  const [allProjects, setAllProjects] = useState([]);
 
   // Sound Effects
   const AddAudio = new Audio(AddEffect);
   const compAudio = new Audio(CompEffect);
 
   // Functions
-
-  const openModal = () => {
-    if (sound) {
-      compAudio.play();
+  const getProjects = () => {
+    try {
+      fetch(API_URL + "/getProjects/" + token).then((res) => {
+        res.json().then((data) => {
+          // console.log("allProjects", data);
+          setAllProjects(data);
+        });
+      });
+    } catch (err) {
+      console.log("err", err);
     }
+  };
+  const openModal = () => {
     setForm(true);
   };
 
   const closeModal = () => {
-    if (sound) {
-      compAudio.play();
-    }
     setForm(false);
   };
   const disposeAll = () => {
     if (sound) {
       AddAudio.play();
     }
-    localStorage.removeItem("projects");
-    setTimeout(() => {
-      setAllProjects([]);
-    }, 800);
+    setDeleteAllModal(true);
   };
 
   const editName = () => {
@@ -84,7 +100,28 @@ function App() {
       if (sound) {
         AddAudio.play();
       }
-      localStorage.setItem("user", JSON.stringify(user));
+      const userData = { id: token, username: user };
+      try {
+        fetch(API_URL + "/updateUser", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        }).then((res) => {
+          res.json().then((data) => {
+            if (res.status === 200) {
+              toast("UserName Changed!");
+              localStorage.setItem("username", JSON.stringify(user));
+            } else {
+              toast(data.message);
+            }
+          });
+        });
+      } catch (err) {
+        console.log(err.message);
+      }
+
       setEditingName(false);
     } else {
       event.preventDefault();
@@ -92,17 +129,88 @@ function App() {
     }
   };
 
+  const confirmDeleteAll = () => {
+    if (sound) {
+      AddAudio.play();
+    }
+    try {
+      fetch(API_URL + "/deleteAll/" + token, {
+        method: "DELETE",
+      }).then((res) => {
+        res.json().then((data) => {
+          if (res.status === 200) {
+            toast("Deleted All Tasks");
+            getProjects();
+            setDeleteAllModal(false);
+          } else {
+            toast(data.message);
+          }
+        });
+      });
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
   const SoundEffect = () => {
     setSound(!sound);
     localStorage.setItem("sound", JSON.stringify(!sound));
   };
-
   useEffect(() => {
-    localStorage.setItem("projects", JSON.stringify(allProjects));
-  }, [allProjects]);
+    getProjects();
+  }, []);
+
   return (
     <>
       <ToastContainer />
+
+      {deleteAllModal ? (
+        <>
+          <div id="myModal" className="modal" style={{ display: "block" }}>
+            <div className="modal-content w-[80%] sm:w-[50%]">
+              <>
+                <div className="max-w-md m-auto">
+                  <div className="rounded-2xl pending-card box">
+                    <div className="circle"></div>
+
+                    <div className="text-center p-3 sm:pr-8 ">
+                      <h3 className="text-xl font-bold title pb-4">Warning!</h3>
+                    </div>
+
+                    <p className="paragraph min-h-[20px]">
+                      This will delete all your Task's Data. After Deletion,
+                      Data can't be retrieved. Proceed at your own risk.
+                    </p>
+                    <br />
+
+                    <div className="flex justify-around">
+                      <div className="circle2">
+                        <button
+                          onClick={confirmDeleteAll}
+                          className="form_btn te xt-center p-0"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      <div className="circle2">
+                        <button
+                          onClick={() => setDeleteAllModal(false)}
+                          className="form_btn text-center p-0"
+                        >
+                          Abort
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            </div>
+          </div>
+        </>
+      ) : (
+        <></>
+      )}
+
       {dashboard ? (
         <>
           <Welcome
@@ -174,7 +282,11 @@ function App() {
         {form ? (
           <>
             <Form
+              setGreeting={setGreeting}
+              token={token}
               form={form}
+              setDashboard={setDashboard}
+              getProjects={getProjects}
               setForm={setForm}
               closeModal={closeModal}
               allProjects={allProjects}
@@ -218,13 +330,14 @@ function App() {
         <div className="card-container">
           {allProjects.length > 0 ? (
             <>
-              {allProjects.map((item, id) => (
+              {allProjects.reverse().map((item, id) => (
                 <Card
                   allProjects={allProjects}
                   setAllProjects={setAllProjects}
                   item={item}
                   key={id}
                   id={id}
+                  getProjects={getProjects}
                   addEffect={AddAudio}
                   completeEffect={compAudio}
                   sound={sound}

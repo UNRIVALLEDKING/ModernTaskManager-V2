@@ -1,14 +1,15 @@
 import React from "react";
 import { useState } from "react";
-import { useRef } from "react";
-import { toast } from "react-toastify";
 import "./welcome.css";
+import CreateAccount from "../form/auth/CreateAccount";
+import Login from "../form/auth/Login";
+import { toast } from "react-toastify";
 
 export default function Welcome({
   allProjects,
   setDashboard,
-  setUser,
   user,
+  setUser,
   setGreeting,
   greeting,
   AddAudio,
@@ -17,23 +18,8 @@ export default function Welcome({
   sound,
   setSound,
 }) {
-  const userRef = useRef();
+  const [authState, setAuthState] = useState("Login");
 
-  const addUser = (event) => {
-    if (userRef.current.value.length <= 15) {
-      event.preventDefault();
-      if (sound) {
-        AddAudio.play();
-      }
-      localStorage.setItem("user", JSON.stringify(userRef.current.value));
-      localStorage.setItem("sound", JSON.stringify(sound));
-      setUser(userRef.current.value);
-      setGreeting(true);
-    } else {
-      event.preventDefault();
-      toast("Username can't be more than 15 letters");
-    }
-  };
   const close = () => {
     if (sound) {
       compAudio.play();
@@ -43,6 +29,16 @@ export default function Welcome({
   const completedProjects = allProjects.filter((item) => {
     return item.status === "Completed";
   });
+
+  function logout() {
+    if (sound) {
+      compAudio.play();
+    }
+    // console.log("logout");
+    localStorage.clear();
+    setGreeting(false);
+    toast("logout");
+  }
 
   return (
     <>
@@ -88,6 +84,14 @@ export default function Welcome({
                   <div className="flex justify-around">
                     <div className="circle2">
                       <button
+                        onClick={logout}
+                        className="form_btn te xt-center p-0"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                    <div className="circle2">
+                      <button
                         onClick={close}
                         className="form_btn text-center p-0"
                       >
@@ -100,33 +104,31 @@ export default function Welcome({
             </>
           ) : (
             <>
-              <form onSubmit={addUser}>
-                <input
-                  type="text"
-                  placeholder="Username"
-                  className="input-field my-2"
-                  ref={userRef}
-                />
-                <div className="flex justify-between my-8">
-                  <p className="paragraph text-2xl">Sound Effect</p>
-                  <div className="circle3">
-                    <button
-                      type="button"
-                      onClick={() => setSound(!sound)}
-                      className="form_btn text-center p-0 h-16 w-16"
-                    >
-                      {sound ? "On" : "Off"}
-                    </button>
-                  </div>
-                </div>
-                <div className="flex justify-around">
-                  <div className="circle2">
-                    <button type="submit" className="form_btn text-center p-0">
-                      Continue
-                    </button>
-                  </div>
-                </div>
-              </form>
+              {authState === "Register" ? (
+                <>
+                  <CreateAccount
+                    authState={authState}
+                    setAuthState={setAuthState}
+                    sound={sound}
+                    setUser={setUser}
+                    setGreeting={setGreeting}
+                    AddAudio={AddAudio}
+                    setSound={setSound}
+                  />
+                </>
+              ) : (
+                <>
+                  <Login
+                    authState={authState}
+                    setAuthState={setAuthState}
+                    sound={sound}
+                    setUser={setUser}
+                    setGreeting={setGreeting}
+                    AddAudio={AddAudio}
+                    setSound={setSound}
+                  />
+                </>
+              )}
             </>
           )}
         </div>
