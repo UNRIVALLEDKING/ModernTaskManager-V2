@@ -10,6 +10,7 @@ export default function CreateAccount({
   setUser,
   AddAudio,
   setGreeting,
+  setToken,
 }) {
   const [showPass, setShowPass] = useState(false);
   const userRef = useRef();
@@ -48,6 +49,7 @@ export default function CreateAccount({
                 "username",
                 JSON.stringify(userRef.current.value)
               );
+              console.log("data_user", data);
               setUser(userRef.current.value);
               toast(data.message);
               setToken(data.token);
