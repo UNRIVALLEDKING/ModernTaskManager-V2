@@ -10,6 +10,7 @@ export default function Login({
   setUser,
   AddAudio,
   setGreeting,
+  setToken,
 }) {
   const [showPass, setShowPass] = useState(false);
   const emailRef = useRef();
@@ -39,6 +40,7 @@ export default function Login({
               // console.log("resData", data);
               if (res.status === 200 && data.token) {
                 localStorage.setItem("token", JSON.stringify(data.token));
+                setToken(data.token);
                 setGreeting(true);
                 localStorage.setItem("sound", JSON.stringify(sound));
                 localStorage.setItem("username", JSON.stringify(data.username));
