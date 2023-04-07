@@ -17,6 +17,7 @@ export default function Welcome({
   SoundEffect,
   sound,
   setSound,
+  setToken,
 }) {
   const [authState, setAuthState] = useState("Login");
 
@@ -114,6 +115,7 @@ export default function Welcome({
                     setGreeting={setGreeting}
                     AddAudio={AddAudio}
                     setSound={setSound}
+                    setToken={setToken}
                   />
                 </>
               ) : (
@@ -122,6 +124,7 @@ export default function Welcome({
                     authState={authState}
                     setAuthState={setAuthState}
                     sound={sound}
+                    setToken={setToken}
                     setUser={setUser}
                     setGreeting={setGreeting}
                     AddAudio={AddAudio}
