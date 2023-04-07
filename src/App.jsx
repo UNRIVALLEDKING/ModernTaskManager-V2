@@ -223,6 +223,7 @@ function App() {
             greeting={greeting}
             setGreeting={setGreeting}
             AddAudio={AddAudio}
+            setToken={setToken}
             compAudio={compAudio}
             SoundEffect={SoundEffect}
             sound={sound}
