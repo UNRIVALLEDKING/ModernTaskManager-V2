@@ -43,8 +43,6 @@ export default function CreateAccount({
             // console.log("res", res.status);
             if (res.status === 201 && data.token) {
               localStorage.setItem("token", JSON.stringify(data.token));
-              setToken(data.token);
-              setGreeting(true);
               localStorage.setItem("sound", JSON.stringify(sound));
               localStorage.setItem(
                 "username",
@@ -52,6 +50,8 @@ export default function CreateAccount({
               );
               setUser(userRef.current.value);
               toast(data.message);
+              setToken(data.token);
+              setGreeting(true);
             } else {
               toast(data.message);
             }
