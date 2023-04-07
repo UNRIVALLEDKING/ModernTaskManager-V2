@@ -7,7 +7,7 @@ export default function Form({
   addEffect,
   closeModal,
   getProjects,
-  token,
+  userToken,
   sound,
   setGreeting,
   setDashboard,
@@ -26,7 +26,7 @@ export default function Form({
         title: projectRef.current.value,
         desc: descRef.current.value,
         deadline: dateRef.current.value,
-        token: token,
+        token: userToken,
         progress: 0,
         status: "Active",
       };

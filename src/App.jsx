@@ -285,7 +285,7 @@ function App() {
           <>
             <Form
               setGreeting={setGreeting}
-              token={token}
+              userToken={token}
               form={form}
               setDashboard={setDashboard}
               getProjects={getProjects}
