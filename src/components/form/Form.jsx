@@ -15,6 +15,7 @@ export default function Form({
   const projectRef = useRef();
   const descRef = useRef();
   const dateRef = useRef();
+
   const addProject = (e) => {
     e.preventDefault();
     if (projectRef.current.value.trim().length > 0) {
@@ -29,7 +30,7 @@ export default function Form({
         progress: 0,
         status: "Active",
       };
-      console.log(project);
+      // console.log(project);
       // const updatedProjects = [...allProjects, project];
       // setAllProjects(updatedProjects);
       // localStorage.setItem("projects", JSON.stringify(updatedProjects));
@@ -42,11 +43,11 @@ export default function Form({
           body: JSON.stringify(project),
         }).then((res) => {
           res.json().then((data) => {
-            console.log("res", res.status);
+            // console.log("res", res.status);
             if (res.status === 201) {
               toast("Project Added!");
               closeModal();
-              console.log("resData", data);
+              // console.log("resData", data);
               getProjects();
             } else {
               toast(data.message);

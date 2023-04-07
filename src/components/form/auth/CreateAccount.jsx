@@ -29,7 +29,7 @@ export default function CreateAccount({
         password: passwordRef.current.value,
       };
 
-      console.log("User", userData);
+      // console.log("User", userData);
       try {
         fetch(API_URL + "/newUser", {
           method: "POST",
@@ -39,8 +39,8 @@ export default function CreateAccount({
           body: JSON.stringify(userData),
         }).then((res) => {
           res.json().then((data) => {
-            console.log("resData", data);
-            console.log("res", res.status);
+            // console.log("resData", data);
+            // console.log("res", res.status);
             if (res.status === 201 && data.token) {
               localStorage.setItem("token", JSON.stringify(data.token));
               setGreeting(true);

@@ -24,7 +24,7 @@ export default function Login({
       email: emailRef.current.value,
       password: passwordRef.current.value,
     };
-    console.log("User", userData.email.length);
+    // console.log("User", userData.email.length);
     if (userData.email.length > 0) {
       if (userData.password.length > 0) {
         try {
@@ -36,7 +36,7 @@ export default function Login({
             body: JSON.stringify(userData),
           }).then((res) => {
             res.json().then((data) => {
-              console.log("resData", data);
+              // console.log("resData", data);
               if (res.status === 200 && data.token) {
                 localStorage.setItem("token", JSON.stringify(data.token));
                 setGreeting(true);
