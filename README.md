@@ -144,3 +144,4 @@ Click on the `archive box with x mark` Button to Remove all Projects/Tasks at on
 <img width="350" src="https://raw.githubusercontent.com/UNRIVALLEDKING/ModernTaskManager/main/src/assets/ScreenShots/AddProjects.jpg" align="center" alt="Modern Task Manager">
 
 <h1>That's all for this repo. Thank you.</h1>
+<h3>Author : UNRIVALLEDKING</h3>
