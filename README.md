@@ -5,6 +5,7 @@
 
 <p align="center">Modern Sci-Fi Themed to-do WebApp. You can use this to organise and manager your Projects/Tasks/Works</p>
 <p align="center">This respo is the clone of my First ToDoMatic which stores data in localStorage. If you want to clone or use the localStorage version of this project <a href="https://github.com/UNRIVALLEDKING/ModernTaskManager" target="_blank"> Click Here </a></p>
+<p align="center">I suggest you to try the localstorage version first. that way you don't have to worry about backend and database.</p>
 
 ## Navigation
 
@@ -36,7 +37,7 @@ Fork This Repo
 Clone the forked Repo
 
 ```bash
-git clone https://github.com/<Your github Username>/ModernTaskManager.git
+git clone https://github.com/<Your github Username>/ModernTaskManager-V2.git
 ```
 
 ### Step 3 :-
