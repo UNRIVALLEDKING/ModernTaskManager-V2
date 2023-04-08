@@ -337,7 +337,7 @@ function App() {
         <div className="card-container">
           {allProjects.length > 0 ? (
             <>
-              {allProjects.reverse().map((item, id) => (
+              {allProjects.map((item, id) => (
                 <Card
                   allProjects={allProjects}
                   setAllProjects={setAllProjects}
