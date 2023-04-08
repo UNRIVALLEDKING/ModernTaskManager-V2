@@ -11,6 +11,7 @@ export default function Login({
   AddAudio,
   setGreeting,
   setToken,
+  getProjects,
 }) {
   const [showPass, setShowPass] = useState(false);
   const emailRef = useRef();

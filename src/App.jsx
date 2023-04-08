@@ -62,6 +62,7 @@ function App() {
 
   // Functions
   const getProjects = () => {
+    console.log("get", token);
     if (token !== null) {
       try {
         fetch(API_URL + "/getProjects/" + token).then((res) => {
@@ -161,6 +162,9 @@ function App() {
   useEffect(() => {
     getProjects();
   }, []);
+  useEffect(() => {
+    getProjects();
+  }, [token]);
 
   return (
     <>
